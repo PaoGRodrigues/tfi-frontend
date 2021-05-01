@@ -1,0 +1,27 @@
+- name: config as router
+  hosts: raspi
+  remote_user: pi
+  become: yes
+  become_user: root
+
+  tasks:
+  - name: Install packages
+    apt:
+      name: 
+        - hostapd
+        - dnsmasq
+        - netfilter-persistent
+        - iptables-persistent
+      state: present
+  - name: Enable service hotsapd and ensure it is not masked
+    systemd:
+      name: hostapd
+      enabled: yes
+      masked: no
+  - name: Config dhcpd
+    copy:
+      src: dhcpcd.conf
+      dest: /etc/dhcpcd.conf
+      owner: root
+      group: netdev
+      mode: 0664
