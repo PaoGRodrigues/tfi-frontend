@@ -1,4 +1,4 @@
-- name: config as router
+- name: Config raspi as router
   hosts: raspi
   remote_user: pi
   become: yes
@@ -13,15 +13,18 @@
         - netfilter-persistent
         - iptables-persistent
       state: present
-  - name: Enable service hotsapd and ensure it is not masked
+  # This service is necessary for the Raspberry in order to work as an access point.
+  - name: Enable service hostapd and ensure it is not masked
     systemd:
       name: hostapd
       enabled: yes
       masked: no
-  - name: Config dhcpd
+  # This file contains the config for dhcpcd to configure the Raspberry static IP address.
+  - name: Config dhcpd file
     copy:
       src: dhcpcd.conf
       dest: /etc/dhcpcd.conf
       owner: root
       group: netdev
       mode: 0664
+      state: present
