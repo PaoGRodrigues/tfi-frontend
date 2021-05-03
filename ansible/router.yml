@@ -27,4 +27,12 @@
       owner: root
       group: netdev
       mode: 0664
-      state: present
+  # This file contains the config to allow traffic to enable routing (from wireless network to 
+  # reach the Ethernet network).
+  - name: Config routed-ap file
+    copy:
+      src: routed-ap.conf
+      dest: /etc/sysctl.d/routed-ap.conf
+      owner: root
+      group: root
+      mode: 0644
