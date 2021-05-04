@@ -36,3 +36,8 @@
       owner: root
       group: root
       mode: 0644
+  # Commands to add IPTables NAT rule and make it persistent
+  - name: Config IPTables rule in nat table with postrouting chain
+    shell: iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+  - name: Make IPtables persistent
+    shell: netfilter-persistent save
