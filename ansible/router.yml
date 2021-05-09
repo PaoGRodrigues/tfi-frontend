@@ -55,3 +55,7 @@
       owner: root
       group: root
       mode: 0644
+
+  # Command to ensure WIFI radio is not blocked on the Raspi
+  - name: Unblock WIFI radio
+    shell: rfkill unblock wlan
