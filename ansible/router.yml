@@ -59,3 +59,13 @@
   # Command to ensure WIFI radio is not blocked on the Raspi
   - name: Unblock WIFI radio
     shell: rfkill unblock wlan
+
+  # This file contains the config for the access point software.
+  - name: Config hostapd file
+    template:
+      src: hostapd.j2
+      dest: /etc/hostapd/hostapd.conf
+    vars: 
+      country_code: "{{ country_code_arg }}"
+      ssid: "{{ ssid_arg }}"
+      wpa_passphare: "{{ wpa_passphare_arg }}"
