@@ -69,3 +69,7 @@
       country_code: "{{ country_code_arg }}"
       ssid: "{{ ssid_arg }}"
       wpa_passphare: "{{ wpa_passphare_arg }}"
+  
+  # Restart the Raspi
+  - name: Unconditionally reboot the machine with all defaults
+    reboot:
