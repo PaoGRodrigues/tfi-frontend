@@ -1,4 +1,4 @@
-- name: config as router
+- name: Config raspi as router
   hosts: raspi
   remote_user: pi
   become: yes
@@ -13,15 +13,63 @@
         - netfilter-persistent
         - iptables-persistent
       state: present
-  - name: Enable service hotsapd and ensure it is not masked
+
+  # This service is necessary for the Raspberry in order to work as an access point.
+  - name: Enable service hostapd and ensure it is not masked
     systemd:
       name: hostapd
       enabled: yes
       masked: no
-  - name: Config dhcpd
+
+  # This file contains the config for dhcpcd to configure the Raspberry static IP address.
+  - name: Config dhcpd file
     copy:
       src: dhcpcd.conf
       dest: /etc/dhcpcd.conf
       owner: root
       group: netdev
       mode: 0664
+
+  # This file contains the config to allow traffic (from wireless network to reach
+  # the Ethernet network).
+  - name: Config routed-ap file
+    copy:
+      src: routed-ap.conf
+      dest: /etc/sysctl.d/routed-ap.conf
+      owner: root
+      group: root
+      mode: 0644
+
+  # Commands to add IPTables NAT rule and make it persistent
+  - name: Config IPTables rule in nat table with postrouting chain
+    shell: iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+  - name: Make IPtables persistent
+    shell: netfilter-persistent save
+  
+  # This file contains dnsmasq file configuration. The DHCP and DNS services are provided by
+  # dnsmasq.
+  - name: Config dnsmasq file
+    copy:
+      src: dnsmasq.conf
+      dest: /etc/dnsmasq.conf
+      owner: root
+      group: root
+      mode: 0644
+
+  # Command to ensure WIFI radio is not blocked on the Raspi
+  - name: Unblock WIFI radio
+    shell: rfkill unblock wlan
+
+  # This file contains the config for the access point software.
+  - name: Config hostapd file
+    template:
+      src: hostapd.j2
+      dest: /etc/hostapd/hostapd.conf
+    vars: 
+      country_code: "{{ country_code_arg }}"
+      ssid: "{{ ssid_arg }}"
+      wpa_passphare: "{{ wpa_passphare_arg }}"
+  
+  # Restart the Raspi
+  - name: Unconditionally reboot the machine with all defaults
+    reboot:
