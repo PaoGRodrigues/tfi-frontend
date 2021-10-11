@@ -1,5 +1,5 @@
 import React from 'react';
-import { Switch, Route } from 'react-router-dom';
+import { Switch, Route, Redirect } from 'react-router-dom';
 import appInfo from './app-info';
 import routes from './app-routes';
 import { SideNavOuterToolbar as SideNavBarLayout } from './layouts';
@@ -17,6 +17,7 @@ export default function Content() {
             component={component}
           />
         ))}
+        <Redirect to={'/home'} />
       </Switch>
       <Footer>
         Copyright © 2011-{new Date().getFullYear()} {appInfo.title} Inc.

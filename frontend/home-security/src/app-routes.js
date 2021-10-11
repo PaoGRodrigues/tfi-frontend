@@ -1,6 +1,12 @@
 import { withNavigationWatcher } from './contexts/navigation';
+import { HomePage } from './pages';
 
-const routes = [];
+const routes = [
+  {
+    path: '/home',
+    component: HomePage
+  }
+];
 
 export default routes.map(route => {
   return {
