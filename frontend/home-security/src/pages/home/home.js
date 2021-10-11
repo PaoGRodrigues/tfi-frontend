@@ -25,8 +25,11 @@ export default () => {
     return (
         <div style={{ overflowY: 'scroll', height: 'calc(100vh - 127px)' }}>
         <React.Fragment>
-            <h2>Home Page</h2>
+            <h2>Resumen</h2>
             <div className={'content-block dx-card responsive-paddings'}>
+            <h2>
+                Dispositivos
+            </h2>
             <DataGrid
                 dataSource={devices}
                 keyExpr="ip"
