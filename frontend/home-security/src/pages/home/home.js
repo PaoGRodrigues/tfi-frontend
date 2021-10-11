@@ -5,17 +5,17 @@ const columns = ['device', 'ip', 'details' ];
 
 const devices = [
     {
-        device:'celular',
+        device:'Celular',
         ip: '192.168.4.5',
         details: 'Test',
     },
     {
-        device:'laptop',
+        device:'Laptop',
         ip: '192.168.4.10',
         details: 'Test1',
     },
     {
-        device:'tv',
+        device:'Tv',
         ip: '192.168.4.15',
         details: 'Test2',
     },
