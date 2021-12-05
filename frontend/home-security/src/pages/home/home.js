@@ -12,7 +12,7 @@ import {
     Crosshair,
     Export,
     Legend,
-    Point,
+    Margin,
     Label,
     Font,
     Title,
@@ -56,64 +56,67 @@ export default () => {
                         showBorders={true}
                         />
                 </div>
-            </React.Fragment>
           
-            <div className={'content-block dx-card responsive-paddings'}>
-                <React.Fragment style={{align: 'right'}}>
-                    <Chart
-                        id="chart"
-                        dataSource={bytesPerHour}
-                        palette="Harmony Light"
-                    >
-                    <CommonSeriesSettings
-                    type="spline"
-                    argumentField="datetime"
-                    >
-                    <Point hoverMode="allArgumentPoints" />
-                    </CommonSeriesSettings>
-                    {
-                    bytesValue.map((item) => <Series
-                        key={item.value}
-                        valueField={item.value}
-                        name={item.name}
-                        />)
-                    }
-                    <ArgumentAxis
-                    valueMarginsEnabled={false}
-                    discreteAxisDivisionMode="crossLabels"
-                    >
-                    <Grid visible={true} />
-                    </ArgumentAxis>
-                    <Crosshair
-                    enabled={true}
-                    color="#949494"
-                    width={3}
-                    dashStyle="dot"
-                    >
-                    <Label
-                        visible={true}
-                        backgroundColor="#949494"
-                    >
-                        <Font
-                        color="#fff"
-                        size={12}
+                <div className={'content-block dx-card responsive-paddings'} style={{overflowX: 'scroll'}}>
+                        <Chart
+                            dataSource={bytesPerHour}
+                            palette="Harmony Light"
+                            showBorders={true}
+                        >
+                        <Margin
+                            left={10}
+                            right={30}
                         />
-                    </Label>
-                    </Crosshair>
-                    <Legend
-                    verticalAlignment="bottom"
-                    horizontalAlignment="center"
-                    itemTextPosition="bottom"
-                    equalColumnWidth={true}
-                    />
-                    <Title text="Cantidad de Bytes por día">
-                    <Subtitle text="(bytes)" />
-                    </Title>
-                    <Export enabled={true} />
-                    <Tooltip enabled={true} />
-                    </Chart>
-                </React.Fragment>
-            </div>
+                        <CommonSeriesSettings
+                        type="spline"
+                        argumentField="datetime"
+                        >
+                        
+                        </CommonSeriesSettings>
+                        {
+                        bytesValue.map((item) => <Series
+                            key={item.value}
+                            valueField={item.value}
+                            name={item.name}
+                            />)
+                        }
+                        
+                        <ArgumentAxis
+                        valueMarginsEnabled={false}
+                        discreteAxisDivisionMode="crossLabels"
+                        >
+                        <Grid visible={true} />
+                        </ArgumentAxis>
+                        <Crosshair
+                        enabled={true}
+                        color="#949494"
+                        width={3}
+                        dashStyle="dot"
+                        >
+                        <Label
+                            visible={true}
+                            backgroundColor="#949494"
+                        >
+                            <Font
+                            color="#fff"
+                            size={12}
+                            />
+                        </Label>
+                        </Crosshair>
+                        <Legend
+                        verticalAlignment="bottom"
+                        horizontalAlignment="center"
+                        itemTextPosition="bottom"
+                        equalColumnWidth={true}
+                        />
+                        <Title text="Cantidad de Bytes por día">
+                        <Subtitle text="(bytes)" />
+                        </Title>
+                        <Export enabled={true} />
+                        <Tooltip enabled={true} />
+                        </Chart>
+                </div>
+            </React.Fragment>
         </div>
     );
 }
