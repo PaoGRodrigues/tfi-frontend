@@ -19,7 +19,6 @@ import {
     Subtitle,
     Tooltip,
   } from 'devextreme-react/chart';
-import { bytesPerHour, bytesValue } from './data.js';
 
  
 function handleErrors(response) {
@@ -28,20 +27,23 @@ function handleErrors(response) {
     }
     return response;
 }
- 
-const customDataSource = new CustomStore({
-    load: () => {
-        return fetch(`http://localhost:8080/devices`)
-            .then(handleErrors)
-            .then(response => response.json())
-            .then(response => {
-                return {
-                    data: response.data,
-                };
-            })
-            .catch(() => { throw 'Network error' });
-    },
-});
+
+
+const newCustomDataSource = (path) => {
+    return new CustomStore({
+        load: () => {
+            return fetch(`http://localhost:8080/${path}`)
+                .then(handleErrors)
+                .then(response => response.json())
+                .then(response => {
+                    return {
+                        data: response.data,
+                    };
+                })
+                .catch(() => { throw 'Network error' });
+        },
+    });
+};
  
 export default () => {
     return (
@@ -51,7 +53,7 @@ export default () => {
                 <div className={'content-block dx-card responsive-paddings'}>
                     <h2>Dispositivos</h2>
                     <DataGrid
-                        dataSource={customDataSource}
+                        dataSource={newCustomDataSource("devices")}
                         // defaultColumns={columns}
                         showBorders={true}
                         />
@@ -59,61 +61,56 @@ export default () => {
           
                 <div className={'content-block dx-card responsive-paddings'} style={{overflowX: 'scroll'}}>
                         <Chart
-                            dataSource={bytesPerHour}
+                            dataSource={newCustomDataSource("traffic")}
                             palette="Harmony Light"
                             showBorders={true}
                         >
-                        <Margin
-                            left={10}
-                            right={30}
-                        />
-                        <CommonSeriesSettings
-                        type="spline"
-                        argumentField="datetime"
-                        >
-                        
-                        </CommonSeriesSettings>
-                        {
-                        bytesValue.map((item) => <Series
-                            key={item.value}
-                            valueField={item.value}
-                            name={item.name}
-                            />)
-                        }
-                        
-                        <ArgumentAxis
-                        valueMarginsEnabled={false}
-                        discreteAxisDivisionMode="crossLabels"
-                        >
-                        <Grid visible={true} />
-                        </ArgumentAxis>
-                        <Crosshair
-                        enabled={true}
-                        color="#949494"
-                        width={3}
-                        dashStyle="dot"
-                        >
-                        <Label
-                            visible={true}
-                            backgroundColor="#949494"
-                        >
-                            <Font
-                            color="#fff"
-                            size={12}
+                            <Margin
+                                left={10}
+                                right={30}
                             />
-                        </Label>
-                        </Crosshair>
-                        <Legend
-                        verticalAlignment="bottom"
-                        horizontalAlignment="center"
-                        itemTextPosition="bottom"
-                        equalColumnWidth={true}
-                        />
-                        <Title text="Cantidad de Bytes por día">
-                        <Subtitle text="(bytes)" />
-                        </Title>
-                        <Export enabled={true} />
-                        <Tooltip enabled={true} />
+                            
+                            <Series
+                                valueField="Bytes"
+                                argumentField="Datetime"
+                                name="Destination"
+                                type="spline"
+
+                            />
+                            
+                            <ArgumentAxis
+                            valueMarginsEnabled={false}
+                            discreteAxisDivisionMode="crossLabels"
+                            >
+                            <Grid visible={true} />
+                            </ArgumentAxis>
+                            <Crosshair
+                            enabled={true}
+                            color="#949494"
+                            width={3}
+                            dashStyle="dot"
+                            >
+                            <Label
+                                visible={true}
+                                backgroundColor="#949494"
+                            >
+                                <Font
+                                color="#fff"
+                                size={12}
+                                />
+                            </Label>
+                            </Crosshair>
+                            <Legend
+                            verticalAlignment="bottom"
+                            horizontalAlignment="center"
+                            itemTextPosition="bottom"
+                            equalColumnWidth={true}
+                            />
+                            <Title text="Cantidad de Bytes por día">
+                            <Subtitle text="(bytes)" />
+                            </Title>
+                            <Export enabled={true} />
+                            <Tooltip enabled={true} />
                         </Chart>
                 </div>
             </React.Fragment>
