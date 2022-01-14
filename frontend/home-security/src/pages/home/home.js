@@ -3,6 +3,8 @@ import 'devextreme/dist/css/dx.light.css';
 import DataGrid from 'devextreme-react/data-grid';
 import CustomStore from 'devextreme/data/custom_store';
 import 'whatwg-fetch';
+import * as mapsData from 'devextreme/dist/js/vectormap-data/world.js';
+import { bytesPerCountry } from './geodata.js';
 import {
     Chart,
     CommonSeriesSettings,
@@ -19,7 +21,11 @@ import {
     Subtitle,
     Tooltip,
   } from 'devextreme-react/chart';
-
+  import VectorMap, {
+    Layer,
+    Border,
+  } from 'devextreme-react/vector-map';
+  
  
 function handleErrors(response) {
     if (!response.ok) {
@@ -44,7 +50,8 @@ const newCustomDataSource = (path) => {
         },
     });
 };
- 
+const bounds = [-180, 85, 180, -60];
+
 export default () => {
     return (
         <div style={{ overflowY: 'scroll', height: 'calc(100vh - 127px)' }}>
@@ -113,7 +120,55 @@ export default () => {
                             <Tooltip enabled={true} />
                         </Chart>
                 </div>
+                <div className={'content-block dx-card responsive-paddings'}>
+                    <VectorMap
+                    id="vector-map"
+                    onClick={clickHandler}
+                    >
+                    <Layer
+                        dataSource={mapsData.world}
+                        customize={customizeLayer}>
+                    </Layer>
+                    <Tooltip enabled={true}
+                        customizeTooltip={customizeTooltip}
+                    >
+                        <Border visible={true}></Border>
+                        <Font color="#fff"></Font>
+                    </Tooltip>
+                    </VectorMap>
+                </div>
             </React.Fragment>
         </div>
     );
 }
+
+function customizeTooltip(arg) {
+    const name = arg.attribute('name');
+    const bytes = bytesPerCountry[name];
+    if (bytes) {
+      return {
+        text: `${name}: ${bytes} Mb`,
+      };
+    }
+    return null;
+  }
+  
+  function clickHandler({ target }) {
+    if (target && bytesPerCountry[target.attribute('name')]) {
+      target.selected(!target.selected());
+    }
+  }
+  
+  function customizeLayer(elements) {
+    elements.forEach((element) => {
+      const bytes = bytesPerCountry[element.attribute('name')];
+      if (bytes) {
+        element.applySettings({
+          color: '#BDB76B',
+          hoveredColor: '#e0e000',
+          selectedColor: '#008f00',
+        });
+      }
+    });
+  }
+  
