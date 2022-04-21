@@ -20,13 +20,13 @@ import {
     Title,
     Subtitle,
     Tooltip,
-  } from 'devextreme-react/chart';
-  import VectorMap, {
+} from 'devextreme-react/chart';
+import VectorMap, {
     Layer,
     Border,
-  } from 'devextreme-react/vector-map';
-  
- 
+} from 'devextreme-react/vector-map';
+
+
 function handleErrors(response) {
     if (!response.ok) {
         throw Error(response.statusText);
@@ -55,86 +55,86 @@ const bounds = [-180, 85, 180, -60];
 export default () => {
     return (
         <div style={{ overflowY: 'scroll', height: 'calc(100vh - 127px)' }}>
-            <React.Fragment style={{align: 'right'}}>
+            <React.Fragment style={{ align: 'right' }}>
                 <h2>Resumen</h2>
                 <div className={'content-block dx-card responsive-paddings'}>
-                    <h2>Dispositivos</h2>
+                    <h2>Dispositivos activos</h2>
                     <DataGrid
                         dataSource={newCustomDataSource("devices")}
                         // defaultColumns={columns}
                         showBorders={true}
-                        />
+                    />
                 </div>
-          
-                <div className={'content-block dx-card responsive-paddings'} style={{overflowX: 'scroll'}}>
-                        <Chart
-                            dataSource={newCustomDataSource("traffic")}
-                            palette="Harmony Light"
-                            showBorders={true}
-                        >
-                            <Margin
-                                left={10}
-                                right={30}
-                            />
-                            
-                            <Series
-                                valueField="Bytes"
-                                argumentField="Datetime"
-                                name="Destination"
-                                type="spline"
 
-                            />
-                            
-                            <ArgumentAxis
+                <div className={'content-block dx-card responsive-paddings'} style={{ overflowX: 'scroll' }}>
+                    <Chart
+                        dataSource={newCustomDataSource("traffic")}
+                        palette="Harmony Light"
+                        showBorders={true}
+                    >
+                        <Margin
+                            left={10}
+                            right={30}
+                        />
+
+                        <Series
+                            valueField="Bytes"
+                            argumentField="Datetime"
+                            name="Destination"
+                            type="spline"
+
+                        />
+
+                        <ArgumentAxis
                             valueMarginsEnabled={false}
                             discreteAxisDivisionMode="crossLabels"
-                            >
+                        >
                             <Grid visible={true} />
-                            </ArgumentAxis>
-                            <Crosshair
+                        </ArgumentAxis>
+                        <Crosshair
                             enabled={true}
                             color="#949494"
                             width={3}
                             dashStyle="dot"
-                            >
+                        >
                             <Label
                                 visible={true}
                                 backgroundColor="#949494"
                             >
                                 <Font
-                                color="#fff"
-                                size={12}
+                                    color="#fff"
+                                    size={12}
                                 />
                             </Label>
-                            </Crosshair>
-                            <Legend
+                        </Crosshair>
+                        <Legend
                             verticalAlignment="bottom"
                             horizontalAlignment="center"
                             itemTextPosition="bottom"
                             equalColumnWidth={true}
-                            />
-                            <Title text="Cantidad de Bytes por día">
+                        />
+                        <Title text="Cantidad de Bytes por destino">
                             <Subtitle text="(bytes)" />
-                            </Title>
-                            <Export enabled={true} />
-                            <Tooltip enabled={true} />
-                        </Chart>
+                        </Title>
+                        <Export enabled={true} />
+                        <Tooltip enabled={true} />
+                    </Chart>
                 </div>
                 <div className={'content-block dx-card responsive-paddings'}>
                     <VectorMap
-                    id="vector-map"
-                    onClick={clickHandler}
+                        id="vector-map"
+                        onClick={clickHandler}
                     >
-                    <Layer
-                        dataSource={mapsData.world}
-                        customize={customizeLayer}>
-                    </Layer>
-                    <Tooltip enabled={true}
-                        customizeTooltip={customizeTooltip}
-                    >
-                        <Border visible={true}></Border>
-                        <Font color="#fff"></Font>
-                    </Tooltip>
+                        <Layer
+                            dataSource={mapsData.world}
+                            customize={customizeLayer}>
+                        </Layer>
+                        <Tooltip enabled={true}
+                            customizeTooltip={customizeTooltip}
+                        >
+                            <Border visible={true}></Border>
+                            <Font color="#fff"></Font>
+                        </Tooltip>
                     </VectorMap>
                 </div>
             </React.Fragment>
@@ -146,29 +146,28 @@ function customizeTooltip(arg) {
     const name = arg.attribute('name');
     const bytes = bytesPerCountry[name];
     if (bytes) {
-      return {
-        text: `${name}: ${bytes} Mb`,
-      };
+        return {
+            text: `${name}: ${bytes} Mb`,
+        };
     }
     return null;
-  }
-  
-  function clickHandler({ target }) {
+}
+
+function clickHandler({ target }) {
     if (target && bytesPerCountry[target.attribute('name')]) {
-      target.selected(!target.selected());
+        target.selected(!target.selected());
     }
-  }
-  
-  function customizeLayer(elements) {
+}
+
+function customizeLayer(elements) {
     elements.forEach((element) => {
-      const bytes = bytesPerCountry[element.attribute('name')];
-      if (bytes) {
-        element.applySettings({
-          color: '#BDB76B',
-          hoveredColor: '#e0e000',
-          selectedColor: '#008f00',
-        });
-      }
+        const bytes = bytesPerCountry[element.attribute('name')];
+        if (bytes) {
+            element.applySettings({
+                color: '#BDB76B',
+                hoveredColor: '#e0e000',
+                selectedColor: '#008f00',
+            });
+        }
     });
-  }
-  
+}
