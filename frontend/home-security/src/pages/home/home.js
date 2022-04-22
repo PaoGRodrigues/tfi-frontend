@@ -1,13 +1,12 @@
 import React from 'react';
 import 'devextreme/dist/css/dx.light.css';
-import DataGrid from 'devextreme-react/data-grid';
+import DataGrid, { Paging } from 'devextreme-react/data-grid';
 import CustomStore from 'devextreme/data/custom_store';
 import 'whatwg-fetch';
 import * as mapsData from 'devextreme/dist/js/vectormap-data/world.js';
 import { bytesPerCountry } from './geodata.js';
 import {
     Chart,
-    CommonSeriesSettings,
     Series,
     ArgumentAxis,
     Grid,
@@ -61,9 +60,10 @@ export default () => {
                     <h2>Dispositivos activos</h2>
                     <DataGrid
                         dataSource={newCustomDataSource("devices")}
-                        // defaultColumns={columns}
                         showBorders={true}
-                    />
+                    >
+                        <Paging defaultPageSize={12} />
+                    </DataGrid>
                 </div>
 
                 <div className={'content-block dx-card responsive-paddings'} style={{ overflowX: 'scroll' }}>
