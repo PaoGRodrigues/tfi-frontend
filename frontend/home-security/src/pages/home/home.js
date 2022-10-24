@@ -16,8 +16,6 @@ import {
     Margin,
     Label,
     Font,
-    Title,
-    Subtitle,
     Tooltip,
 } from 'devextreme-react/chart';
 import VectorMap, {
@@ -33,8 +31,25 @@ function handleErrors(response) {
     return response;
 }
 
+const flattenObj = (ob) => {
+    let result = {};
 
-const newCustomDataSource = (path) => {
+    for (const i in ob) {
+        if ((typeof ob[i]) === 'object' && !Array.isArray(ob[i])) {
+            const temp = flattenObj(ob[i]);
+            for (const j in temp) {
+                result[i + '.' + j] = temp[j];
+            }
+        }
+        else {
+            result[i] = ob[i];
+        }
+    }
+    console.log(result);
+    return result;
+};
+
+const newCustomDataSource = (path, flatten) => {
     return new CustomStore({
         load: () => {
             return fetch(`http://localhost:8080/${path}`)
@@ -42,8 +57,8 @@ const newCustomDataSource = (path) => {
                 .then(response => response.json())
                 .then(response => {
                     return {
-                        data: response.data,
-                    };
+                        data: flatten ? response.data.map(flattenObj) : response.data,
+                    }
                 })
                 .catch(() => { throw 'Network error' });
         },
@@ -59,16 +74,16 @@ export default () => {
                 <div className={'content-block dx-card responsive-paddings'}>
                     <h2>Dispositivos activos</h2>
                     <DataGrid
-                        dataSource={newCustomDataSource("devices")}
+                        dataSource={newCustomDataSource("localhosts")}
                         showBorders={true}
                     >
                         <Paging defaultPageSize={12} />
                     </DataGrid>
                 </div>
-
                 <div className={'content-block dx-card responsive-paddings'} style={{ overflowX: 'scroll' }}>
+                    <h2>Bytes por destino</h2>
                     <Chart
-                        dataSource={newCustomDataSource("traffic")}
+                        dataSource={newCustomDataSource("traffic", true)}
                         palette="Harmony Light"
                         showBorders={true}
                     >
@@ -79,7 +94,7 @@ export default () => {
 
                         <Series
                             valueField="Bytes"
-                            argumentField="Datetime"
+                            argumentField="Server.IP"
                             name="Destination"
                             type="spline"
 
@@ -113,14 +128,12 @@ export default () => {
                             itemTextPosition="bottom"
                             equalColumnWidth={true}
                         />
-                        <Title text="Cantidad de Bytes por destino">
-                            <Subtitle text="(bytes)" />
-                        </Title>
                         <Export enabled={true} />
                         <Tooltip enabled={true} />
                     </Chart>
                 </div>
                 <div className={'content-block dx-card responsive-paddings'}>
+                    <h2>Tráfico</h2>
                     <VectorMap
                         id="vector-map"
                         onClick={clickHandler}
@@ -136,6 +149,15 @@ export default () => {
                             <Font color="#fff"></Font>
                         </Tooltip>
                     </VectorMap>
+                </div>
+                <div className={'content-block dx-card responsive-paddings'}>
+                    <h2>Alertas activas</h2>
+                    <DataGrid
+                        dataSource={newCustomDataSource("alerts")}
+                        showBorders={true}
+                    >
+                        <Paging defaultPageSize={12} />
+                    </DataGrid>
                 </div>
             </React.Fragment>
         </div>
