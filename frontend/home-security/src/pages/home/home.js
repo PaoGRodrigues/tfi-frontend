@@ -82,26 +82,21 @@ export default () => {
                 </div>
                 <div className={'content-block dx-card responsive-paddings'} style={{ overflowX: 'scroll' }}>
                     <h2>Bytes por destino</h2>
-                    <Chart
+                    <Chart id="chart" width={'100%'}
                         dataSource={newCustomDataSource("traffic", true)}
                         palette="Harmony Light"
                         showBorders={true}
                     >
-                        <Margin
-                            left={10}
-                            right={30}
-                        />
 
                         <Series
                             valueField="Bytes"
                             argumentField="Server.IP"
                             name="Destination"
-                            type="spline"
+                            type="bar"
 
                         />
 
                         <ArgumentAxis
-                            valueMarginsEnabled={false}
                             discreteAxisDivisionMode="crossLabels"
                         >
                             <Grid visible={true} />
