@@ -13,7 +13,6 @@ import {
     Crosshair,
     Export,
     Legend,
-    Margin,
     Label,
     Font,
     Tooltip,
@@ -64,7 +63,6 @@ const newCustomDataSource = (path, flatten) => {
         },
     });
 };
-const bounds = [-180, 85, 180, -60];
 
 export default () => {
     return (
@@ -74,7 +72,7 @@ export default () => {
                 <div className={'content-block dx-card responsive-paddings'}>
                     <h2>Dispositivos activos</h2>
                     <DataGrid
-                        dataSource={newCustomDataSource("localhosts")}
+                        dataSource={newCustomDataSource("localhosts", false)}
                         showBorders={true}
                     >
                         <Paging defaultPageSize={12} />
@@ -132,10 +130,11 @@ export default () => {
                     <VectorMap
                         id="vector-map"
                         onClick={clickHandler}
+                        data={newCustomDataSource("traffic", false)}
                     >
                         <Layer
                             dataSource={mapsData.world}
-                            customize={customizeLayer}>
+                            customize={customizeLayer} >
                         </Layer>
                         <Tooltip enabled={true}
                             customizeTooltip={customizeTooltip}
@@ -148,7 +147,7 @@ export default () => {
                 <div className={'content-block dx-card responsive-paddings'}>
                     <h2>Alertas activas</h2>
                     <DataGrid
-                        dataSource={newCustomDataSource("alerts")}
+                        dataSource={newCustomDataSource("alerts", false)}
                         showBorders={true}
                     >
                         <Paging defaultPageSize={12} />
