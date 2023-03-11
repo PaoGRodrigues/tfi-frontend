@@ -1,10 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import 'devextreme/dist/css/dx.light.css';
 import DataGrid, { Paging } from 'devextreme-react/data-grid';
 import CustomStore from 'devextreme/data/custom_store';
 import 'whatwg-fetch';
 import * as mapsData from 'devextreme/dist/js/vectormap-data/world.js';
 import { bytesPerCountry } from './geodata.js';
+import TextBox from 'devextreme-react/text-box';
+import Button from 'devextreme-react/button';
+import notify from 'devextreme/ui/notify';
+
+import {
+    Form,
+    RequiredRule,
+} from 'devextreme-react/validator';
 import {
     Chart,
     Series,
@@ -65,6 +73,8 @@ const newCustomDataSource = (path, flatten) => {
 };
 
 export default () => {
+    const [ip, setIp] = useState(null);
+
     return (
         <div style={{ overflowY: 'scroll', height: 'calc(100vh - 127px)' }}>
             <React.Fragment style={{ align: 'right' }}>
@@ -153,8 +163,35 @@ export default () => {
                         <Paging defaultPageSize={12} />
                     </DataGrid>
                 </div>
+
+                <div className={'content-block dx-card responsive-paddings'}>
+                    <form action="your-action" onSubmit={(e) => handleSubmit(e, ip)}>
+                        <div className="dx-field">
+                            <div className="dx-field-label">A bloquear</div>
+                            <div className="dx-field-value">
+                                <TextBox
+                                    onChange={(e) => {
+                                        console.log(e.event.currentTarget.value);
+                                        setIp(e.event.currentTarget.value);
+                                    }}
+                                >
+                                    <RequiredRule message="Campo requerido" />
+                                </TextBox>
+                            </div>
+                        </div>
+                        <div className="dx-fieldset">
+                            <Button
+                                width="100%"
+                                id="button"
+                                text="Bloquear"
+                                type="success"
+                                useSubmitBehavior={true} />
+                        </div>
+
+                    </form>
+                </div>
             </React.Fragment>
-        </div>
+        </div >
     );
 }
 
@@ -186,4 +223,38 @@ function customizeLayer(elements) {
             });
         }
     });
+
+}
+
+function handleSubmit(e, ip) {
+    fetch(`http://localhost:8080/blockhost`, { method: 'POST', mode: "no-cors", body: JSON.stringify({ host: ip }) })
+        .then((response) => {
+            if (response.status === 200) {
+                notify({
+                    message: ip,
+                    position: {
+                        my: 'center top',
+                        at: 'center top',
+                    },
+                }, 'success', 3000)
+            } else {
+                (notify({
+                    message: "Could not block host",
+                    position: {
+                        my: 'center top',
+                        at: 'center top',
+                    },
+                }, 'error', 3000))
+            }
+
+        })
+        .catch(() => () => notify({
+            message: "Could not block host",
+            position: {
+                my: 'center top',
+                at: 'center top',
+            },
+        }, 'error', 3000));
+
+    e.preventDefault();
 }
