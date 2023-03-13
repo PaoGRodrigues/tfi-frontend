@@ -167,7 +167,7 @@ export default () => {
                 <div className={'content-block dx-card responsive-paddings'}>
                     <form action="your-action" onSubmit={(e) => handleSubmit(e, ip)}>
                         <div className="dx-field">
-                            <div className="dx-field-label">A bloquear</div>
+                            <div className="dx-field-label" font-size="30px">A bloquear</div>
                             <div className="dx-field-value">
                                 <TextBox
                                     onChange={(e) => {
@@ -227,9 +227,11 @@ function customizeLayer(elements) {
 }
 
 function handleSubmit(e, ip) {
-    fetch(`http://localhost:8080/blockhost`, { method: 'POST', mode: "no-cors", body: JSON.stringify({ host: ip }) })
+    fetch(`http://localhost:8080/blockhost`, { method: 'POST', body: JSON.stringify({ host: ip }) })
         .then((response) => {
+            console.log(response)
             if (response.status === 200) {
+
                 notify({
                     message: ip,
                     position: {
@@ -248,7 +250,7 @@ function handleSubmit(e, ip) {
             }
 
         })
-        .catch(() => () => notify({
+        .catch(() => notify({
             message: "Could not block host",
             position: {
                 my: 'center top',
