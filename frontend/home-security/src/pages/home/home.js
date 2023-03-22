@@ -88,7 +88,7 @@ export default () => {
                         <Paging defaultPageSize={12} />
                     </DataGrid>
                 </div>
-                <div className={'content-block dx-card responsive-paddings'} style={{ overflowX: 'scroll' }}>
+                <div className={'content-block dx-card responsive-paddings'} style={{ overflowX: 'auto' }}>
                     <h2>Bytes por destino</h2>
                     <Chart id="chart" width={'100%'}
                         dataSource={newCustomDataSource("traffic", true)}
@@ -165,9 +165,9 @@ export default () => {
                 </div>
 
                 <div className={'content-block dx-card responsive-paddings'}>
-                    <form action="your-action" onSubmit={(e) => handleSubmit(e, ip)}>
+                    <form action="block" onSubmit={(e) => handleSubmit(e, ip)}>
                         <div className="dx-field">
-                            <div className="dx-field-label" font-size="30px">A bloquear</div>
+                            <div className="dx-field-label">A bloquear</div>
                             <div className="dx-field-value">
                                 <TextBox
                                     onChange={(e) => {
