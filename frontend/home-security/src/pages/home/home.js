@@ -74,6 +74,8 @@ const newCustomDataSource = (path, flatten) => {
 
 export default () => {
     const [ip, setIp] = useState(null);
+    const [token, setToken] = useState(null);
+    const [username, setUsername] = useState(null);
 
     return (
         <div style={{ overflowY: 'scroll', height: 'calc(100vh - 127px)' }}>
@@ -190,6 +192,45 @@ export default () => {
 
                     </form>
                 </div>
+                <div className={'content-block dx-card responsive-paddings'}>
+                    <form action="send" onSubmit={(e) => handleSubmitConfigure(e, token, username)}>
+                        <div className="dx-field">
+                            <div className="dx-field-label">Token</div>
+                            <div className="dx-field-value">
+                                <TextBox
+                                    onChange={(e) => {
+                                        console.log(e.event.currentTarget.value);
+                                        setToken(e.event.currentTarget.value);
+                                    }}
+                                >
+                                    <RequiredRule message="Campo requerido" />
+                                </TextBox>
+                            </div>
+                        </div>
+                        <div className="dx-field">
+                            <div className="dx-field-label">Username</div>
+                            <div className="dx-field-value">
+                                <TextBox
+                                    onChange={(e) => {
+                                        console.log(e.event.currentTarget.value);
+                                        setUsername(e.event.currentTarget.value);
+                                    }}
+                                >
+                                    <RequiredRule message="Campo requerido" />
+                                </TextBox>
+                            </div>
+                        </div>
+                        <div className="dx-fieldset">
+                            <Button
+                                width="100%"
+                                id="button"
+                                text="Configurar"
+                                type="success"
+                                useSubmitBehavior={true} />
+                        </div>
+
+                    </form>
+                </div>
             </React.Fragment>
         </div >
     );
@@ -231,7 +272,6 @@ function handleSubmit(e, ip) {
         .then((response) => {
             console.log(response)
             if (response.status === 200) {
-
                 notify({
                     message: ip,
                     position: {
@@ -248,10 +288,42 @@ function handleSubmit(e, ip) {
                     },
                 }, 'error', 3000))
             }
-
         })
         .catch(() => notify({
             message: "Could not block host",
+            position: {
+                my: 'center top',
+                at: 'center top',
+            },
+        }, 'error', 3000));
+
+    e.preventDefault();
+}
+
+function handleSubmitConfigure(e, token, username) {
+    fetch(`http://localhost:8080/configurechannel`, { method: 'POST', body: JSON.stringify({ token: token, username: username }) })
+        .then((response) => {
+            console.log(response)
+            if (response.status === 200) {
+                notify({
+                    message: "Configured!",
+                    position: {
+                        my: 'center top',
+                        at: 'center top',
+                    },
+                }, 'success', 3000)
+            } else {
+                (notify({
+                    message: "Could not configure your channel",
+                    position: {
+                        my: 'center top',
+                        at: 'center top',
+                    },
+                }, 'error', 3000))
+            }
+        })
+        .catch(() => notify({
+            message: "Could not configure your channel",
             position: {
                 my: 'center top',
                 at: 'center top',
