@@ -158,7 +158,7 @@ export default () => {
                 <div className={'content-block dx-card responsive-paddings'}>
                     <h2>Alertas activas</h2>
                     <DataGrid
-                        dataSource={newCustomDataSource("alerts", true)}
+                        dataSource={newCustomDataSource("alerts", false)}
                         allowColumnResizing={true}
                         columnAutoWidth={true}
                         showBorders={true}
