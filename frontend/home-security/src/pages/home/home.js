@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import 'devextreme/dist/css/dx.light.css';
-import DataGrid, { Paging } from 'devextreme-react/data-grid';
+import DataGrid, { ColumnChooser, ColumnFixing, Paging } from 'devextreme-react/data-grid';
 import CustomStore from 'devextreme/data/custom_store';
 import 'whatwg-fetch';
 import * as mapsData from 'devextreme/dist/js/vectormap-data/world.js';
@@ -10,7 +10,6 @@ import Button from 'devextreme-react/button';
 import notify from 'devextreme/ui/notify';
 
 import {
-    Form,
     RequiredRule,
 } from 'devextreme-react/validator';
 import {
@@ -159,9 +158,13 @@ export default () => {
                 <div className={'content-block dx-card responsive-paddings'}>
                     <h2>Alertas activas</h2>
                     <DataGrid
-                        dataSource={newCustomDataSource("alerts", false)}
+                        dataSource={newCustomDataSource("alerts", true)}
+                        allowColumnResizing={true}
+                        columnAutoWidth={true}
                         showBorders={true}
                     >
+                        <ColumnChooser enabled={true} />
+                        <ColumnFixing enabled={true} />
                         <Paging defaultPageSize={12} />
                     </DataGrid>
                 </div>
