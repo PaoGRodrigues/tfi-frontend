@@ -1,10 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import 'devextreme/dist/css/dx.light.css';
-import DataGrid, { Paging } from 'devextreme-react/data-grid';
+import DataGrid, { ColumnChooser, ColumnFixing, Paging } from 'devextreme-react/data-grid';
 import CustomStore from 'devextreme/data/custom_store';
 import 'whatwg-fetch';
 import * as mapsData from 'devextreme/dist/js/vectormap-data/world.js';
 import { bytesPerCountry } from './geodata.js';
+import TextBox from 'devextreme-react/text-box';
+import Button from 'devextreme-react/button';
+import notify from 'devextreme/ui/notify';
+
+import {
+    RequiredRule,
+} from 'devextreme-react/validator';
 import {
     Chart,
     Series,
@@ -65,6 +72,10 @@ const newCustomDataSource = (path, flatten) => {
 };
 
 export default () => {
+    const [ip, setIp] = useState(null);
+    const [token, setToken] = useState(null);
+    const [username, setUsername] = useState(null);
+
     return (
         <div style={{ overflowY: 'scroll', height: 'calc(100vh - 127px)' }}>
             <React.Fragment style={{ align: 'right' }}>
@@ -78,7 +89,7 @@ export default () => {
                         <Paging defaultPageSize={12} />
                     </DataGrid>
                 </div>
-                <div className={'content-block dx-card responsive-paddings'} style={{ overflowX: 'scroll' }}>
+                <div className={'content-block dx-card responsive-paddings'} style={{ overflowX: 'auto' }}>
                     <h2>Bytes por destino</h2>
                     <Chart id="chart" width={'100%'}
                         dataSource={newCustomDataSource("traffic", true)}
@@ -148,13 +159,83 @@ export default () => {
                     <h2>Alertas activas</h2>
                     <DataGrid
                         dataSource={newCustomDataSource("alerts", false)}
+                        allowColumnResizing={true}
+                        columnAutoWidth={true}
                         showBorders={true}
                     >
+                        <ColumnChooser enabled={true} />
+                        <ColumnFixing enabled={true} />
                         <Paging defaultPageSize={12} />
                     </DataGrid>
                 </div>
+
+                <div className={'content-block dx-card responsive-paddings'}>
+                    <form action="block" onSubmit={(e) => handleSubmit(e, ip)}>
+                        <div className="dx-field">
+                            <div className="dx-field-label">A bloquear</div>
+                            <div className="dx-field-value">
+                                <TextBox
+                                    onChange={(e) => {
+                                        console.log(e.event.currentTarget.value);
+                                        setIp(e.event.currentTarget.value);
+                                    }}
+                                >
+                                    <RequiredRule message="Campo requerido" />
+                                </TextBox>
+                            </div>
+                        </div>
+                        <div className="dx-fieldset">
+                            <Button
+                                width="100%"
+                                id="button"
+                                text="Bloquear"
+                                type="success"
+                                useSubmitBehavior={true} />
+                        </div>
+
+                    </form>
+                </div>
+                <div className={'content-block dx-card responsive-paddings'}>
+                    <form action="send" onSubmit={(e) => handleSubmitConfigure(e, token, username)}>
+                        <div className="dx-field">
+                            <div className="dx-field-label">Token</div>
+                            <div className="dx-field-value">
+                                <TextBox
+                                    onChange={(e) => {
+                                        console.log(e.event.currentTarget.value);
+                                        setToken(e.event.currentTarget.value);
+                                    }}
+                                >
+                                    <RequiredRule message="Campo requerido" />
+                                </TextBox>
+                            </div>
+                        </div>
+                        <div className="dx-field">
+                            <div className="dx-field-label">Username</div>
+                            <div className="dx-field-value">
+                                <TextBox
+                                    onChange={(e) => {
+                                        console.log(e.event.currentTarget.value);
+                                        setUsername(e.event.currentTarget.value);
+                                    }}
+                                >
+                                    <RequiredRule message="Campo requerido" />
+                                </TextBox>
+                            </div>
+                        </div>
+                        <div className="dx-fieldset">
+                            <Button
+                                width="100%"
+                                id="button"
+                                text="Configurar"
+                                type="success"
+                                useSubmitBehavior={true} />
+                        </div>
+
+                    </form>
+                </div>
             </React.Fragment>
-        </div>
+        </div >
     );
 }
 
@@ -186,4 +267,71 @@ function customizeLayer(elements) {
             });
         }
     });
+
+}
+
+function handleSubmit(e, ip) {
+    fetch(`http://localhost:8080/blockhost`, { method: 'POST', body: JSON.stringify({ host: ip }) })
+        .then((response) => {
+            console.log(response)
+            if (response.status === 200) {
+                notify({
+                    message: ip,
+                    position: {
+                        my: 'center top',
+                        at: 'center top',
+                    },
+                }, 'success', 3000)
+            } else {
+                (notify({
+                    message: "Could not block host",
+                    position: {
+                        my: 'center top',
+                        at: 'center top',
+                    },
+                }, 'error', 3000))
+            }
+        })
+        .catch(() => notify({
+            message: "Could not block host",
+            position: {
+                my: 'center top',
+                at: 'center top',
+            },
+        }, 'error', 3000));
+
+    e.preventDefault();
+}
+
+function handleSubmitConfigure(e, token, username) {
+    fetch(`http://localhost:8080/configurechannel`, { method: 'POST', body: JSON.stringify({ token: token, username: username }) })
+        .then((response) => {
+            console.log(response)
+            if (response.status === 200) {
+                notify({
+                    message: "Configured!",
+                    position: {
+                        my: 'center top',
+                        at: 'center top',
+                    },
+                }, 'success', 3000)
+            } else {
+                (notify({
+                    message: "Could not configure your channel",
+                    position: {
+                        my: 'center top',
+                        at: 'center top',
+                    },
+                }, 'error', 3000))
+            }
+        })
+        .catch(() => notify({
+            message: "Could not configure your channel",
+            position: {
+                my: 'center top',
+                at: 'center top',
+            },
+        }, 'error', 3000));
+
+    e.preventDefault();
 }
