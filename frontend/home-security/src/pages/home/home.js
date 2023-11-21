@@ -4,7 +4,7 @@ import DataGrid, { ColumnChooser, ColumnFixing, Paging } from 'devextreme-react/
 import CustomStore from 'devextreme/data/custom_store';
 import 'whatwg-fetch';
 import * as mapsData from 'devextreme/dist/js/vectormap-data/world.js';
-import { bytesPerCountry } from './geodata.js';
+import { country_codes } from './country_codes.js';
 import TextBox from 'devextreme-react/text-box';
 import Button from 'devextreme-react/button';
 import notify from 'devextreme/ui/notify';
@@ -58,7 +58,7 @@ const flattenObj = (ob) => {
 const newCustomDataSource = (path, flatten) => {
     return new CustomStore({
         load: () => {
-            return fetch(`http://localhost:8080/${path}`)
+            return fetch(`http://192.168.0.10:8080/${path}`)
                 .then(handleErrors)
                 .then(response => response.json())
                 .then(response => {
@@ -76,6 +76,8 @@ export default () => {
     const [token, setToken] = useState(null);
     const [username, setUsername] = useState(null);
 
+
+
     return (
         <div style={{ overflowY: 'scroll', height: 'calc(100vh - 127px)' }}>
             <React.Fragment style={{ align: 'right' }}>
@@ -92,14 +94,14 @@ export default () => {
                 <div className={'content-block dx-card responsive-paddings'} style={{ overflowX: 'auto' }}>
                     <h2>Bytes por destino</h2>
                     <Chart id="chart" width={'100%'}
-                        dataSource={newCustomDataSource("traffic", true)}
+                        dataSource={newCustomDataSource("activeflowsperdest", true)}
                         palette="Harmony Light"
                         showBorders={true}
                     >
 
                         <Series
                             valueField="Bytes"
-                            argumentField="Server.IP"
+                            argumentField="Destination"
                             name="Destination"
                             type="bar"
 
@@ -141,15 +143,22 @@ export default () => {
                     <VectorMap
                         id="vector-map"
                         onClick={clickHandler}
-                        data={newCustomDataSource("traffic", false)}
                     >
                         <Layer
+                            type='area'
                             dataSource={mapsData.world}
-                            customize={customizeLayer} >
+                        >
+                        </Layer>
+                        <Layer
+                            type='marker'
+                            dataSource={newCustomDataSource("activeflowspercountry", true)}
+                            customize={customizeLayer}
+                        >
                         </Layer>
                         <Tooltip enabled={true}
                             customizeTooltip={customizeTooltip}
                         >
+                            <Label enabled={true} dataField="bytes"></Label>
                             <Border visible={true}></Border>
                             <Font color="#fff"></Font>
                         </Tooltip>
@@ -234,44 +243,49 @@ export default () => {
 
                     </form>
                 </div>
-            </React.Fragment>
+            </React.Fragment >
         </div >
     );
 }
 
+function customizeLayer(elements) {
+    console.log(elements)
+
+    elements.forEach((element) => {
+        const country = country_codes[element.attribute('name')];
+        if (country) {
+            element.applySettings({
+                color: '#e0e000',
+                hoveredColor: '#e0e000',
+                selectedColor: '#008f00',
+            });
+        }
+        console.log(element)
+    });
+}
+
+
 function customizeTooltip(arg) {
-    const name = arg.attribute('name');
-    const bytes = bytesPerCountry[name];
-    if (bytes) {
+    const name = arg.attribute('country');
+    const bytes = arg.attribute('bytes')
+    const code = country_codes[name];
+    if (code) {
         return {
-            text: `${name}: ${bytes} Mb`,
+            text: `${code}: ${bytes}`,
+            color: '#e0e000',
         };
     }
     return null;
 }
 
 function clickHandler({ target }) {
-    if (target && bytesPerCountry[target.attribute('name')]) {
+    if (target) {
         target.selected(!target.selected());
     }
 }
 
-function customizeLayer(elements) {
-    elements.forEach((element) => {
-        const bytes = bytesPerCountry[element.attribute('name')];
-        if (bytes) {
-            element.applySettings({
-                color: '#BDB76B',
-                hoveredColor: '#e0e000',
-                selectedColor: '#008f00',
-            });
-        }
-    });
-
-}
-
 function handleSubmit(e, ip) {
-    fetch(`http://localhost:8080/blockhost`, { method: 'POST', body: JSON.stringify({ host: ip }) })
+    fetch(`http://192.168.0.10:8080/blockhost`, { method: 'POST', body: JSON.stringify({ host: ip }) })
         .then((response) => {
             console.log(response)
             if (response.status === 200) {
@@ -304,7 +318,7 @@ function handleSubmit(e, ip) {
 }
 
 function handleSubmitConfigure(e, token, username) {
-    fetch(`http://localhost:8080/configurechannel`, { method: 'POST', body: JSON.stringify({ token: token, username: username }) })
+    fetch(`http://192.168.0.10:8080/configurechannel`, { method: 'POST', body: JSON.stringify({ token: token, username: username }) })
         .then((response) => {
             console.log(response)
             if (response.status === 200) {
