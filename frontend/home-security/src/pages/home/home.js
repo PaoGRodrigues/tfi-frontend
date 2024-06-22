@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import 'devextreme/dist/css/dx.light.css';
 import DataGrid, { ColumnChooser, ColumnFixing, Paging } from 'devextreme-react/data-grid';
 import CustomStore from 'devextreme/data/custom_store';
 import 'whatwg-fetch';
 import * as mapsData from 'devextreme/dist/js/vectormap-data/world.js';
-import { bytesPerCountry } from './geodata.js';
+import { country_codes } from './country_codes.js';
 import TextBox from 'devextreme-react/text-box';
 import Button from 'devextreme-react/button';
 import notify from 'devextreme/ui/notify';
@@ -75,6 +75,12 @@ export default () => {
     const [ip, setIp] = useState(null);
     const [token, setToken] = useState(null);
     const [username, setUsername] = useState(null);
+    const [bytesPerCountry, setBytesPerCountry] = useState(null);
+
+    useEffect(() => {
+        getBytesPerCountry()
+            .then(setBytesPerCountry);
+    }, []);
 
     return (
         <div style={{ overflowY: 'scroll', height: 'calc(100vh - 127px)' }}>
@@ -83,7 +89,7 @@ export default () => {
                 <div className={'content-block dx-card responsive-paddings'}>
                     <h2>Dispositivos activos</h2>
                     <DataGrid
-                        dataSource={newCustomDataSource("localhosts", false)}
+                        dataSource={newCustomDataSource("localhosts", true)}
                         showBorders={true}
                     >
                         <Paging defaultPageSize={12} />
@@ -92,14 +98,14 @@ export default () => {
                 <div className={'content-block dx-card responsive-paddings'} style={{ overflowX: 'auto' }}>
                     <h2>Bytes por destino</h2>
                     <Chart id="chart" width={'100%'}
-                        dataSource={newCustomDataSource("traffic", true)}
+                        dataSource={newCustomDataSource("activeflowsperdest", true)}
                         palette="Harmony Light"
                         showBorders={true}
                     >
 
                         <Series
                             valueField="Bytes"
-                            argumentField="Server.IP"
+                            argumentField="Destination"
                             name="Destination"
                             type="bar"
 
@@ -138,22 +144,23 @@ export default () => {
                 </div>
                 <div className={'content-block dx-card responsive-paddings'}>
                     <h2>Tráfico</h2>
-                    <VectorMap
+                    {bytesPerCountry === null ? null : <VectorMap
                         id="vector-map"
+                        bounds={bounds}
                         onClick={clickHandler}
-                        data={newCustomDataSource("traffic", false)}
                     >
                         <Layer
                             dataSource={mapsData.world}
-                            customize={customizeLayer} >
-                        </Layer>
-                        <Tooltip enabled={true}
-                            customizeTooltip={customizeTooltip}
+                            customize={customizeLayer(bytesPerCountry)}
+                        ></Layer>
+                        <Tooltip
+                            enabled={true}
+                            customizeTooltip={customizeTooltip(bytesPerCountry)}
                         >
                             <Border visible={true}></Border>
                             <Font color="#fff"></Font>
                         </Tooltip>
-                    </VectorMap>
+                    </VectorMap>}
                 </div>
                 <div className={'content-block dx-card responsive-paddings'}>
                     <h2>Alertas activas</h2>
@@ -211,7 +218,7 @@ export default () => {
                             </div>
                         </div>
                         <div className="dx-field">
-                            <div className="dx-field-label">Username</div>
+                            <div className="dx-field-label">Nombre de usuario</div>
                             <div className="dx-field-value">
                                 <TextBox
                                     onChange={(e) => {
@@ -234,41 +241,56 @@ export default () => {
 
                     </form>
                 </div>
-            </React.Fragment>
+            </React.Fragment >
         </div >
     );
 }
 
-function customizeTooltip(arg) {
-    const name = arg.attribute('name');
-    const bytes = bytesPerCountry[name];
-    if (bytes) {
-        return {
-            text: `${name}: ${bytes} Mb`,
-        };
-    }
-    return null;
+
+const bounds = [-180, 85, 180, -60];
+
+const getBytesPerCountry = () => {
+    return fetch("http://localhost:8080/activeflowspercountry")
+        .then(response => response.json())
+        .then(response => response.data)
+        .then(countriesData => {
+            let bytesPerCountry = {};
+            countriesData.forEach(
+                cd => { bytesPerCountry[country_codes[cd.country]] = cd.bytes }
+            );
+            return bytesPerCountry;
+        });
 }
 
-function clickHandler({ target }) {
-    if (target && bytesPerCountry[target.attribute('name')]) {
-        target.selected(!target.selected());
-    }
-}
-
-function customizeLayer(elements) {
+const customizeLayer = (bytesPerCountry) => (elements) => {
     elements.forEach((element) => {
-        const bytes = bytesPerCountry[element.attribute('name')];
-        if (bytes) {
+        if (bytesPerCountry[element.attribute('name')]) {
             element.applySettings({
-                color: '#BDB76B',
+                color: '#0000ff',
                 hoveredColor: '#e0e000',
                 selectedColor: '#008f00',
             });
         }
     });
+};
 
-}
+const clickHandler = ({ target }) => {
+    if (target) {
+        target.selected(!target.selected());
+    }
+};
+const customizeTooltip = (bytesPerCountry) => ({ attribute }) => {
+    const name = attribute('name');
+    const bytes = bytesPerCountry[name];
+    if (bytes) {
+        console.log("country name", name);
+        return {
+            text: `${name}: ${bytes}`,
+            color: "#ff0000"
+        };
+    }
+    return null;
+};
 
 function handleSubmit(e, ip) {
     fetch(`http://localhost:8080/blockhost`, { method: 'POST', body: JSON.stringify({ host: ip }) })
