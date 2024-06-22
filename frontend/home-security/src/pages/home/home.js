@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import 'devextreme/dist/css/dx.light.css';
 import DataGrid, { ColumnChooser, ColumnFixing, Paging } from 'devextreme-react/data-grid';
 import CustomStore from 'devextreme/data/custom_store';
@@ -58,7 +58,7 @@ const flattenObj = (ob) => {
 const newCustomDataSource = (path, flatten) => {
     return new CustomStore({
         load: () => {
-            return fetch(`http://192.168.0.10:8080/${path}`)
+            return fetch(`http://localhost:8080/${path}`)
                 .then(handleErrors)
                 .then(response => response.json())
                 .then(response => {
@@ -75,8 +75,12 @@ export default () => {
     const [ip, setIp] = useState(null);
     const [token, setToken] = useState(null);
     const [username, setUsername] = useState(null);
+    const [bytesPerCountry, setBytesPerCountry] = useState(null);
 
-
+    useEffect(() => {
+        getBytesPerCountry()
+            .then(setBytesPerCountry);
+    }, []);
 
     return (
         <div style={{ overflowY: 'scroll', height: 'calc(100vh - 127px)' }}>
@@ -85,7 +89,7 @@ export default () => {
                 <div className={'content-block dx-card responsive-paddings'}>
                     <h2>Dispositivos activos</h2>
                     <DataGrid
-                        dataSource={newCustomDataSource("localhosts", false)}
+                        dataSource={newCustomDataSource("localhosts", true)}
                         showBorders={true}
                     >
                         <Paging defaultPageSize={12} />
@@ -140,29 +144,23 @@ export default () => {
                 </div>
                 <div className={'content-block dx-card responsive-paddings'}>
                     <h2>Tráfico</h2>
-                    <VectorMap
+                    {bytesPerCountry === null ? null : <VectorMap
                         id="vector-map"
+                        bounds={bounds}
                         onClick={clickHandler}
                     >
                         <Layer
-                            type='area'
                             dataSource={mapsData.world}
+                            customize={customizeLayer(bytesPerCountry)}
+                        ></Layer>
+                        <Tooltip
+                            enabled={true}
+                            customizeTooltip={customizeTooltip(bytesPerCountry)}
                         >
-                        </Layer>
-                        <Layer
-                            type='marker'
-                            dataSource={newCustomDataSource("activeflowspercountry", true)}
-                            customize={customizeLayer}
-                        >
-                        </Layer>
-                        <Tooltip enabled={true}
-                            customizeTooltip={customizeTooltip}
-                        >
-                            <Label enabled={true} dataField="bytes"></Label>
                             <Border visible={true}></Border>
                             <Font color="#fff"></Font>
                         </Tooltip>
-                    </VectorMap>
+                    </VectorMap>}
                 </div>
                 <div className={'content-block dx-card responsive-paddings'}>
                     <h2>Alertas activas</h2>
@@ -220,7 +218,7 @@ export default () => {
                             </div>
                         </div>
                         <div className="dx-field">
-                            <div className="dx-field-label">Username</div>
+                            <div className="dx-field-label">Nombre de usuario</div>
                             <div className="dx-field-value">
                                 <TextBox
                                     onChange={(e) => {
@@ -248,44 +246,54 @@ export default () => {
     );
 }
 
-function customizeLayer(elements) {
-    console.log(elements)
 
+const bounds = [-180, 85, 180, -60];
+
+const getBytesPerCountry = () => {
+    return fetch("http://localhost:8080/activeflowspercountry")
+        .then(response => response.json())
+        .then(response => response.data)
+        .then(countriesData => {
+            let bytesPerCountry = {};
+            countriesData.forEach(
+                cd => { bytesPerCountry[country_codes[cd.country]] = cd.bytes }
+            );
+            return bytesPerCountry;
+        });
+}
+
+const customizeLayer = (bytesPerCountry) => (elements) => {
     elements.forEach((element) => {
-        const country = country_codes[element.attribute('name')];
-        if (country) {
+        if (bytesPerCountry[element.attribute('name')]) {
             element.applySettings({
-                color: '#e0e000',
+                color: '#0000ff',
                 hoveredColor: '#e0e000',
                 selectedColor: '#008f00',
             });
         }
-        console.log(element)
     });
-}
+};
 
-
-function customizeTooltip(arg) {
-    const name = arg.attribute('country');
-    const bytes = arg.attribute('bytes')
-    const code = country_codes[name];
-    if (code) {
-        return {
-            text: `${code}: ${bytes}`,
-            color: '#e0e000',
-        };
-    }
-    return null;
-}
-
-function clickHandler({ target }) {
+const clickHandler = ({ target }) => {
     if (target) {
         target.selected(!target.selected());
     }
-}
+};
+const customizeTooltip = (bytesPerCountry) => ({ attribute }) => {
+    const name = attribute('name');
+    const bytes = bytesPerCountry[name];
+    if (bytes) {
+        console.log("country name", name);
+        return {
+            text: `${name}: ${bytes}`,
+            color: "#ff0000"
+        };
+    }
+    return null;
+};
 
 function handleSubmit(e, ip) {
-    fetch(`http://192.168.0.10:8080/blockhost`, { method: 'POST', body: JSON.stringify({ host: ip }) })
+    fetch(`http://localhost:8080/blockhost`, { method: 'POST', body: JSON.stringify({ host: ip }) })
         .then((response) => {
             console.log(response)
             if (response.status === 200) {
@@ -318,7 +326,7 @@ function handleSubmit(e, ip) {
 }
 
 function handleSubmitConfigure(e, token, username) {
-    fetch(`http://192.168.0.10:8080/configurechannel`, { method: 'POST', body: JSON.stringify({ token: token, username: username }) })
+    fetch(`http://localhost:8080/configurechannel`, { method: 'POST', body: JSON.stringify({ token: token, username: username }) })
         .then((response) => {
             console.log(response)
             if (response.status === 200) {
