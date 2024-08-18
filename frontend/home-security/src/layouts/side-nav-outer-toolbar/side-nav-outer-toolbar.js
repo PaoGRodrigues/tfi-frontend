@@ -2,7 +2,7 @@ import Drawer from 'devextreme-react/drawer';
 import ScrollView from 'devextreme-react/scroll-view';
 import React, { useState, useCallback, useRef } from 'react';
 import { useHistory } from 'react-router';
-import { Header, SideNavigationMenu, Footer } from '../../components';
+import { Header, Footer } from '../../components';
 import './side-nav-outer-toolbar.scss';
 import { useScreenSize } from '../../utils/media-query';
 import { Template } from 'devextreme-react/core/template';
@@ -91,15 +91,6 @@ export default function SideNavOuterToolbar({ title, children }) {
             </div>
           </ScrollView>
         </div>
-        <Template name={'menu'}>
-          <SideNavigationMenu
-            compactMode={menuStatus === MenuStatus.Closed}
-            selectedItemChanged={onNavigationChanged}
-            openMenu={temporaryOpenMenu}
-            onMenuReady={onMenuReady}
-          >
-          </SideNavigationMenu>
-        </Template>
       </Drawer>
     </div>
   );

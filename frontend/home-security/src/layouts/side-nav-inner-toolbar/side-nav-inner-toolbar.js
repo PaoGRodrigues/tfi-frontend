@@ -4,7 +4,7 @@ import ScrollView from 'devextreme-react/scroll-view';
 import Toolbar, { Item } from 'devextreme-react/toolbar';
 import React, { useState, useCallback, useRef } from 'react';
 import { useHistory } from 'react-router';
-import { Header, SideNavigationMenu, Footer } from '../../components';
+import { Header, Footer } from '../../components';
 import './side-nav-inner-toolbar.scss';
 import { useScreenSize } from '../../utils/media-query';
 import { Template } from 'devextreme-react/core/template';
@@ -92,25 +92,18 @@ export default function SideNavInnerToolbar({ title, children }) {
           </ScrollView>
         </div>
         <Template name={'menu'}>
-          <SideNavigationMenu
-            compactMode={menuStatus === MenuStatus.Closed}
-            selectedItemChanged={onNavigationChanged}
-            openMenu={temporaryOpenMenu}
-            onMenuReady={onMenuReady}
-          >
-            <Toolbar id={'navigation-header'}>
-              {
-                !isXSmall &&
-                <Item
-                  location={'before'}
-                  cssClass={'menu-button'}
-                >
-                  <Button icon="menu" stylingMode="text" onClick={toggleMenu} />
-                </Item>
-              }
-              <Item location={'before'} cssClass={'header-title'} text={title} />
-            </Toolbar>
-          </SideNavigationMenu>
+          <Toolbar id={'navigation-header'}>
+            {
+              !isXSmall &&
+              <Item
+                location={'before'}
+                cssClass={'menu-button'}
+              >
+                <Button icon="menu" stylingMode="text" onClick={toggleMenu} />
+              </Item>
+            }
+            <Item location={'before'} cssClass={'header-title'} text={title} />
+          </Toolbar>
         </Template>
       </Drawer>
     </div>
