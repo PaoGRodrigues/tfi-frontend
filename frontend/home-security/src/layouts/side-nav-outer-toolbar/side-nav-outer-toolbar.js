@@ -1,4 +1,3 @@
-import Drawer from 'devextreme-react/drawer';
 import ScrollView from 'devextreme-react/scroll-view';
 import React, { useRef } from 'react';
 import { Header, Footer } from '../../components';
