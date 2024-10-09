@@ -58,7 +58,11 @@ const flattenObj = (ob) => {
 const newCustomDataSource = (path, flatten) => {
     return new CustomStore({
         load: () => {
-            return fetch(`http://localhost:8080/${path}`)
+            const hostname = window.location.hostname;
+            const backendport = '8080';
+            const url = `http://${hostname}:${backendport}/${path}`
+
+            return fetch(url)
                 .then(handleErrors)
                 .then(response => response.json())
                 .then(response => {
@@ -250,7 +254,12 @@ export default () => {
 const bounds = [-180, 85, 180, -60];
 
 const getBytesPerCountry = () => {
-    return fetch("http://localhost:8080/activeflowspercountry")
+    const hostname = window.location.hostname;
+    const backendport = '8080';
+    const countryPath = 'activeflowspercountry';
+    const url = `http://${hostname}:${backendport}/${countryPath}`
+
+    return fetch(url)
         .then(response => response.json())
         .then(response => response.data)
         .then(countriesData => {
@@ -293,7 +302,12 @@ const customizeTooltip = (bytesPerCountry) => ({ attribute }) => {
 };
 
 function handleSubmit(e, ip) {
-    fetch(`http://localhost:8080/blockhost`, { method: 'POST', body: JSON.stringify({ host: ip }) })
+    const hostname = window.location.hostname;
+    const backendport = '8080';
+    const blockPath = 'blockhost';
+    const url = `http://${hostname}:${backendport}/${blockPath}`
+
+    fetch(url, { method: 'POST', body: JSON.stringify({ host: ip }) })
         .then((response) => {
             console.log(response)
             if (response.status === 200) {
@@ -326,7 +340,12 @@ function handleSubmit(e, ip) {
 }
 
 function handleSubmitConfigure(e, token, username) {
-    fetch(`http://localhost:8080/configurechannel`, { method: 'POST', body: JSON.stringify({ token: token, username: username }) })
+    const hostname = window.location.hostname;
+    const backendport = '8080';
+    const configPath = 'configurechannel';
+    const url = `http://${hostname}:${backendport}/${configPath}`
+
+    fetch(url, { method: 'POST', body: JSON.stringify({ token: token, username: username }) })
         .then((response) => {
             console.log(response)
             if (response.status === 200) {
