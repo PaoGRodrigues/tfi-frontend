@@ -23,7 +23,9 @@ Información disponible
 
 ### Descarga y ejecución
 1. Clonar el repositorio de Github https://github.com/PaoGRodrigues/tfi-frontend.
-    ```$ git clone https://github.com/PaoGRodrigues/tfi-frontend```
+    ```
+    $ git clone https://github.com/PaoGRodrigues/tfi-frontend
+    ```
 2. Para instalar Node en la versión que se necesita, ejecutar los siguientes comandos:
     ```
     $ sudo apt-get install nodejs
@@ -38,7 +40,9 @@ Información disponible
     $ npm install
     ```
 4. Ejecutar el siguiente comando para correr la aplicación:
-    ```$ HOST=192.168.0.13 PORT=4500 npm start ~/src/App```
+    ```
+    $ HOST=192.168.0.13 PORT=4500 npm start ~/src/App
+    ```
 5. Para ver el frontend, en un dispositivo conectado directamente a la red del router hogareño, abrir un navegador e ingresar ```192.168.0.13:4500```
 
     Cambiar la IP de la Raspberry Pi según sea necesario.
